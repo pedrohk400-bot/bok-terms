@@ -92,6 +92,7 @@ input:focus, textarea:focus {
 textarea {
     resize: vertical;
     min-height: 90px;
+    line-height: 1.7;
 }
 
 button {
@@ -138,9 +139,11 @@ button:disabled {
     width: 22px;
     height: 22px;
     accent-color: #00c780;
+    flex-shrink: 0;
 }
 
-#dashboard, #logoutBtn {
+#dashboard,
+#logoutBtn {
     display: none;
 }
 
@@ -167,6 +170,20 @@ button:disabled {
     font-size: 12px;
     margin-top: 25px;
 }
+
+@media(max-width:480px) {
+    body {
+        padding: 14px;
+    }
+
+    .container {
+        margin-top: 18px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+}
 </style>
 </head>
 
@@ -180,7 +197,7 @@ button:disabled {
         <p>لوحة التحكم في تحديثات تطبيق BOK</p>
     </div>
 
-    <div id="status"></div>
+    <div id="status" role="status" aria-live="polite"></div>
 
     <!-- تسجيل الدخول -->
 
@@ -188,23 +205,29 @@ button:disabled {
 
         <h2>تسجيل دخول المدير</h2>
 
-        <label for="email">البريد الإلكتروني</label>
-        <input
-            id="email"
-            type="email"
-            autocomplete="username"
-            placeholder="البريد الإلكتروني">
+        <form id="loginForm">
 
-        <label for="password">كلمة المرور</label>
-        <input
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            placeholder="كلمة المرور">
+            <label for="email">البريد الإلكتروني</label>
+            <input
+                id="email"
+                type="email"
+                autocomplete="username"
+                placeholder="البريد الإلكتروني"
+                required>
 
-        <button id="loginBtn" type="button" onclick="login()">
-            تسجيل الدخول
-        </button>
+            <label for="password">كلمة المرور</label>
+            <input
+                id="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="كلمة المرور"
+                required>
+
+            <button id="loginBtn" type="submit">
+                تسجيل الدخول
+            </button>
+
+        </form>
 
         <p class="info">
             هذه اللوحة مخصصة لحساب المدير المعتمد في Firebase.
@@ -233,26 +256,31 @@ button:disabled {
             <label for="latestVersion">
                 أحدث إصدار (رقم صحيح)
             </label>
+
             <input
                 id="latestVersion"
                 type="number"
                 min="1"
                 step="1"
-                value="1">
+                value="1"
+                required>
 
             <label for="minimumVersion">
                 أقل إصدار مسموح
             </label>
+
             <input
                 id="minimumVersion"
                 type="number"
                 min="1"
                 step="1"
-                value="1">
+                value="1"
+                required>
 
             <label for="updateUrl">
                 رابط تنزيل ملف APK
             </label>
+
             <input
                 id="updateUrl"
                 type="url"
@@ -262,43 +290,43 @@ button:disabled {
             <label for="message">
                 رسالة التحديث
             </label>
+
             <textarea id="message">يتوفر تحديث جديد لتطبيق BOK. يرجى تحديث التطبيق للمتابعة.</textarea>
 
-            <button
-                id="saveBtn"
-                type="button"
-                onclick="saveSettings()">
+            <button id="saveBtn" type="button">
                 حفظ إعدادات التحديث
             </button>
 
             <p class="info">
                 أحدث إصدار: الإصدار الذي تريد نشره.<br>
                 أقل إصدار مسموح: الإصدارات الأقدم من هذا الرقم
-                يجب أن يمنعها التطبيق من الدخول.<br>
-                لا ترفع رقم أقل إصدار إلا بعد التأكد من توفر
-                النسخة الجديدة ورابط تنزيلها.
+                يجب أن يمنعها التطبيق من الدخول إذا كان يدعم هذه الخاصية.<br>
+                تأكد من توفر النسخة الجديدة ورابط التنزيل قبل فرض التحديث.
             </p>
 
         </div>
 
         <div class="card">
+
             <h2>حالة النظام</h2>
+
             <p id="systemStatus" class="info">
                 جارٍ تحميل الإعدادات...
             </p>
+
             <button
                 class="secondary"
-                type="button"
-                onclick="loadSettings()">
+                id="reloadBtn"
+                type="button">
                 إعادة تحميل الإعدادات
             </button>
+
         </div>
 
         <button
             id="logoutBtn"
             class="danger"
-            type="button"
-            onclick="logout()">
+            type="button">
             تسجيل الخروج
         </button>
 
@@ -319,28 +347,29 @@ button:disabled {
 <script>
 
 // ======================================
-// إعدادات مشروع Firebase
+// إعدادات Firebase الجديدة
+// BOK-PEDRO-NEW
 // ======================================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDnvmRTgZl1p325V3TmCjIH-PnPfjJPPpk",
-    authDomain: "bok-ped.firebaseapp.com",
-    databaseURL: "https://bok-ped-default-rtdb.firebaseio.com",
-    projectId: "bok-ped",
-    storageBucket: "bok-ped.firebasestorage.app",
-    messagingSenderId: "812838230843",
-    appId: "1:812838230843:web:f3bd5f59343db42b52b51e",
-    measurementId: "G-26SMZR0QCC"
+    apiKey: "AIzaSyCRUpWEIvw927UEIjdl_G7ecdgZ_V-oDpo",
+    authDomain: "bok-pedro-new.firebaseapp.com",
+    databaseURL: "https://bok-pedro-new-default-rtdb.firebaseio.com",
+    projectId: "bok-pedro-new",
+    storageBucket: "bok-pedro-new.firebasestorage.app",
+    messagingSenderId: "79997674431",
+    appId: "1:79997674431:web:92c4b0db8d8d5d3863370a",
+    measurementId: "G-HJ3PYMKG5X"
 };
 
 // ======================================
-// حساب المدير المسموح له بالتحكم
+// UID المدير في المشروع الجديد
 // ======================================
 
-const ADMIN_UID = "zuwXPgS4TPYF5GyAYEPEOrsYV0z1";
+const ADMIN_UID = "gL1GGUJ7FWS4zRZmzdaf60qqHMD3";
 
 // ======================================
-// تشغيل Firebase
+// تهيئة Firebase
 // ======================================
 
 firebase.initializeApp(firebaseConfig);
@@ -348,8 +377,15 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+const updateRef = db.ref("app_update");
+
 let currentAdmin = null;
 let loading = false;
+let authVersion = 0;
+
+function $(id) {
+    return document.getElementById(id);
+}
 
 // ======================================
 // رسائل الحالة
@@ -357,7 +393,7 @@ let loading = false;
 
 function showStatus(message, success) {
 
-    const box = document.getElementById("status");
+    const box = $("status");
 
     box.style.display = "block";
     box.style.background = success ? "#123b28" : "#491c23";
@@ -368,39 +404,34 @@ function showStatus(message, success) {
 
 function clearStatus() {
 
-    const box = document.getElementById("status");
-
-    box.style.display = "none";
-    box.textContent = "";
+    $("status").style.display = "none";
+    $("status").textContent = "";
 
 }
 
 // ======================================
-// التحقق من حساب المدير
+// التحقق من هوية المدير
 // ======================================
 
 function verifyAdmin(user) {
 
     if (!user || user.uid !== ADMIN_UID) {
+
         currentAdmin = null;
 
-        document.getElementById("loginCard").style.display = "block";
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "none";
-
-        showStatus(
-            "هذا الحساب غير مخوّل لإدارة تحديثات BOK.",
-            false
-        );
+        $("loginCard").style.display = "block";
+        $("dashboard").style.display = "none";
+        $("logoutBtn").style.display = "none";
 
         return false;
+
     }
 
     currentAdmin = user;
 
-    document.getElementById("loginCard").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    document.getElementById("logoutBtn").style.display = "block";
+    $("loginCard").style.display = "none";
+    $("dashboard").style.display = "block";
+    $("logoutBtn").style.display = "block";
 
     return true;
 
@@ -410,23 +441,26 @@ function verifyAdmin(user) {
 // تسجيل الدخول
 // ======================================
 
-async function login() {
+$("loginForm").addEventListener("submit", async function(e) {
+
+    e.preventDefault();
 
     if (loading) return;
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+    const email = $("email").value.trim();
+    const password = $("password").value;
 
     if (!email || !password) {
+
         showStatus("أدخل البريد الإلكتروني وكلمة المرور.", false);
         return;
+
     }
 
     loading = true;
 
-    const btn = document.getElementById("loginBtn");
-    btn.disabled = true;
-    btn.textContent = "جارٍ تسجيل الدخول...";
+    $("loginBtn").disabled = true;
+    $("loginBtn").textContent = "جارٍ تسجيل الدخول...";
 
     try {
 
@@ -435,30 +469,37 @@ async function login() {
             password
         );
 
-        if (!verifyAdmin(result.user)) {
+        if (!result.user || result.user.uid !== ADMIN_UID) {
+
             await auth.signOut();
+
+            showStatus(
+                "هذا الحساب غير مخوّل لإدارة تحديثات BOK.",
+                false
+            );
+
             return;
+
         }
 
         clearStatus();
-        await loadSettings();
 
-    } catch (error) {
+    } catch(error) {
 
         showStatus(
-            "تعذر تسجيل الدخول. تحقق من البيانات وإعدادات Firebase.",
+            friendlyError(error),
             false
         );
 
     } finally {
 
         loading = false;
-        btn.disabled = false;
-        btn.textContent = "تسجيل الدخول";
+        $("loginBtn").disabled = false;
+        $("loginBtn").textContent = "تسجيل الدخول";
 
     }
 
-}
+});
 
 // ======================================
 // تحميل الإعدادات
@@ -467,61 +508,99 @@ async function login() {
 async function loadSettings() {
 
     if (!currentAdmin || currentAdmin.uid !== ADMIN_UID) {
+
         showStatus("سجّل الدخول بحساب المدير أولاً.", false);
         return;
+
     }
+
+    if (loading) return;
+
+    loading = true;
+    $("reloadBtn").disabled = true;
+
+    $("systemStatus").textContent = "جارٍ تحميل الإعدادات...";
 
     try {
 
-        document.getElementById("systemStatus").textContent =
-            "جارٍ تحميل الإعدادات...";
+        const snapshot = await updateRef.once("value");
 
-        const snapshot = await db.ref("app_update").once("value");
+        if (!currentAdmin || auth.currentUser.uid !== ADMIN_UID) {
+            return;
+        }
 
         const data = snapshot.val() || {};
 
-        document.getElementById("enabled").checked =
-            data.enabled === true;
+        $("enabled").checked = data.enabled === true;
 
-        document.getElementById("forceUpdate").checked =
+        $("forceUpdate").checked =
             data.force_update === true;
 
-        document.getElementById("latestVersion").value =
-            Number.isInteger(data.latest_version) &&
-            data.latest_version >= 1
-                ? data.latest_version
+        const latest = Number(data.latest_version);
+        const minimum = Number(data.minimum_version);
+
+        $("latestVersion").value =
+            Number.isSafeInteger(latest) && latest >= 1
+                ? latest
                 : 1;
 
-        document.getElementById("minimumVersion").value =
-            Number.isInteger(data.minimum_version) &&
-            data.minimum_version >= 1
-                ? data.minimum_version
+        $("minimumVersion").value =
+            Number.isSafeInteger(minimum) && minimum >= 1
+                ? minimum
                 : 1;
 
-        document.getElementById("updateUrl").value =
+        $("updateUrl").value =
             typeof data.update_url === "string"
                 ? data.update_url
                 : "";
 
-        document.getElementById("message").value =
+        $("message").value =
             typeof data.message === "string"
                 ? data.message
                 : "";
 
-        document.getElementById("systemStatus").textContent =
-            "تم تحميل الإعدادات بنجاح.";
+        $("systemStatus").textContent =
+            "تم تحميل الإعدادات بنجاح. أحدث إصدار: " +
+            $("latestVersion").value;
 
         clearStatus();
 
-    } catch (error) {
+    } catch(error) {
 
-        document.getElementById("systemStatus").textContent =
+        $("systemStatus").textContent =
             "تعذر تحميل الإعدادات.";
 
         showStatus(
-            "فشل تحميل البيانات. تحقق من اتصال Firebase وقواعد Rules.",
+            friendlyError(error),
             false
         );
+
+    } finally {
+
+        loading = false;
+        $("reloadBtn").disabled = false;
+
+    }
+
+}
+
+// ======================================
+// التحقق من رابط التنزيل
+// ======================================
+
+function validDownloadUrl(value) {
+
+    if (!value) return true;
+
+    try {
+
+        const parsed = new URL(value);
+
+        return parsed.protocol === "https:";
+
+    } catch(error) {
+
+        return false;
 
     }
 
@@ -533,76 +612,101 @@ async function loadSettings() {
 
 async function saveSettings() {
 
-    if (!currentAdmin || currentAdmin.uid !== ADMIN_UID) {
-        showStatus("ليس لديك صلاحية تعديل الإعدادات.", false);
+    if (!currentAdmin ||
+        !auth.currentUser ||
+        auth.currentUser.uid !== ADMIN_UID) {
+
+        showStatus(
+            "ليس لديك صلاحية تعديل الإعدادات.",
+            false
+        );
+
         return;
+
     }
 
     if (loading) return;
 
-    const latest = Number(
-        document.getElementById("latestVersion").value
-    );
+    const latestRaw = $("latestVersion").value.trim();
+    const minimumRaw = $("minimumVersion").value.trim();
 
-    const minimum = Number(
-        document.getElementById("minimumVersion").value
-    );
+    if (!/^[1-9][0-9]*$/.test(latestRaw) ||
+        !/^[1-9][0-9]*$/.test(minimumRaw)) {
 
-    const updateUrl = document.getElementById("updateUrl").value.trim();
-    const message = document.getElementById("message").value.trim();
+        showStatus(
+            "أرقام الإصدارات يجب أن تكون أعداداً صحيحة موجبة.",
+            false
+        );
 
-    if (
-        !Number.isSafeInteger(latest) ||
-        !Number.isSafeInteger(minimum) ||
-        latest < 1 ||
-        minimum < 1
-    ) {
-        showStatus("أرقام الإصدارات يجب أن تكون أعداداً صحيحة موجبة.", false);
         return;
+
+    }
+
+    const latest = Number(latestRaw);
+    const minimum = Number(minimumRaw);
+
+    if (!Number.isSafeInteger(latest) ||
+        !Number.isSafeInteger(minimum)) {
+
+        showStatus("رقم الإصدار كبير جداً.", false);
+        return;
+
     }
 
     if (minimum > latest) {
-        showStatus("أقل إصدار مسموح لا يمكن أن يكون أكبر من أحدث إصدار.", false);
+
+        showStatus(
+            "أقل إصدار مسموح لا يمكن أن يكون أكبر من أحدث إصدار.",
+            false
+        );
+
         return;
-    }
-
-    if (updateUrl) {
-
-        try {
-
-            const parsedUrl = new URL(updateUrl);
-
-            if (parsedUrl.protocol !== "https:") {
-                showStatus("استخدم رابط تنزيل يبدأ بـ HTTPS.", false);
-                return;
-            }
-
-        } catch (error) {
-
-            showStatus("رابط تنزيل APK غير صالح.", false);
-            return;
-
-        }
 
     }
 
-    if (
-        document.getElementById("forceUpdate").checked &&
-        document.getElementById("enabled").checked &&
-        !updateUrl
-    ) {
+    const updateUrl = $("updateUrl").value.trim();
+    const message = $("message").value.trim();
+    const enabled = $("enabled").checked;
+    const forceUpdate = $("forceUpdate").checked;
+
+    if (!validDownloadUrl(updateUrl)) {
+
+        showStatus(
+            "رابط التنزيل غير صالح. استخدم رابط HTTPS.",
+            false
+        );
+
+        return;
+
+    }
+
+    if (enabled && forceUpdate && !updateUrl) {
+
         showStatus(
             "أضف رابط تنزيل APK قبل تفعيل التحديث الإجباري.",
             false
         );
+
         return;
+
+    }
+
+    if (enabled && latest > minimum && !updateUrl) {
+
+        showStatus(
+            "أضف رابط تنزيل APK عند نشر إصدار جديد.",
+            false
+        );
+
+        return;
+
     }
 
     const data = {
-        enabled: document.getElementById("enabled").checked,
+        enabled: enabled,
         latest_version: latest,
         minimum_version: minimum,
-        force_update: document.getElementById("forceUpdate").checked,
+        force_update: forceUpdate,
         update_url: updateUrl,
         message: message,
         updated_at: firebase.database.ServerValue.TIMESTAMP
@@ -610,31 +714,39 @@ async function saveSettings() {
 
     loading = true;
 
-    const btn = document.getElementById("saveBtn");
-    btn.disabled = true;
-    btn.textContent = "جارٍ الحفظ...";
+    $("saveBtn").disabled = true;
+    $("saveBtn").textContent = "جارٍ الحفظ...";
 
     try {
 
-        await db.ref("app_update").set(data);
+        const user = auth.currentUser;
 
-        showStatus("تم حفظ إعدادات التحديث بنجاح.", true);
+        if (!user || user.uid !== ADMIN_UID) {
+            throw new Error("انتهت جلسة المدير. سجّل الدخول مجدداً.");
+        }
 
-        document.getElementById("systemStatus").textContent =
-            "الإعدادات محفوظة. أحدث إصدار: " + latest;
+        await updateRef.set(data);
 
-    } catch (error) {
+        $("systemStatus").textContent =
+            "تم الحفظ بنجاح. أحدث إصدار: " + latest;
 
         showStatus(
-            "فشل الحفظ. تأكد من تسجيل الدخول وصلاحيات Firebase Rules.",
+            "تم حفظ إعدادات التحديث بنجاح.",
+            true
+        );
+
+    } catch(error) {
+
+        showStatus(
+            friendlyError(error),
             false
         );
 
     } finally {
 
         loading = false;
-        btn.disabled = false;
-        btn.textContent = "حفظ إعدادات التحديث";
+        $("saveBtn").disabled = false;
+        $("saveBtn").textContent = "حفظ إعدادات التحديث";
 
     }
 
@@ -648,38 +760,137 @@ async function logout() {
 
     try {
 
-        currentAdmin = null;
         await auth.signOut();
 
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "none";
-        document.getElementById("loginCard").style.display = "block";
+        currentAdmin = null;
 
-        document.getElementById("password").value = "";
+        $("password").value = "";
+        $("dashboard").style.display = "none";
+        $("logoutBtn").style.display = "none";
+        $("loginCard").style.display = "block";
 
         showStatus("تم تسجيل الخروج.", true);
 
-    } catch (error) {
+    } catch(error) {
 
-        showStatus("تعذر تسجيل الخروج.", false);
+        showStatus(
+            friendlyError(error),
+            false
+        );
 
     }
 
 }
 
 // ======================================
-// مراقبة جلسة Firebase
+// معالجة أخطاء Firebase
+// ======================================
+
+function friendlyError(error) {
+
+    const code = error && error.code
+        ? error.code
+        : "";
+
+    if (
+        code.includes("invalid-credential") ||
+        code.includes("wrong-password") ||
+        code.includes("user-not-found") ||
+        code.includes("invalid-login-credentials")
+    ) {
+
+        return "بيانات الدخول غير صحيحة.";
+
+    }
+
+    if (code.includes("too-many-requests")) {
+
+        return "محاولات كثيرة. انتظر قليلاً ثم حاول مرة أخرى.";
+
+    }
+
+    if (code.includes("unauthorized-domain")) {
+
+        return "أضف نطاق موقع GitHub Pages إلى Authorized domains في Firebase Authentication.";
+
+    }
+
+    if (
+        code.includes("permission-denied") ||
+        code.includes("PERMISSION_DENIED")
+    ) {
+
+        return "تم رفض العملية. تحقق من قواعد Firebase وصلاحيات المدير.";
+
+    }
+
+    if (code.includes("invalid-api-key")) {
+
+        return "مفتاح Firebase API غير صحيح.";
+
+    }
+
+    if (code.includes("network-request-failed")) {
+
+        return "تعذر الاتصال بالإنترنت. تحقق من اتصالك.";
+
+    }
+
+    return error && error.message
+        ? error.message
+        : "حدث خطأ غير متوقع.";
+
+}
+
+// ======================================
+// أزرار الصفحة
+// ======================================
+
+$("saveBtn").addEventListener("click", saveSettings);
+$("reloadBtn").addEventListener("click", loadSettings);
+$("logoutBtn").addEventListener("click", logout);
+
+// ======================================
+// مراقبة حالة تسجيل الدخول
 // ======================================
 
 auth.onAuthStateChanged(async function(user) {
+
+    const version = ++authVersion;
 
     if (!user) {
 
         currentAdmin = null;
 
-        document.getElementById("loginCard").style.display = "block";
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "none";
+        $("loginCard").style.display = "block";
+        $("dashboard").style.display = "none";
+        $("logoutBtn").style.display = "none";
+
+        $("systemStatus").textContent =
+            "سجّل الدخول لعرض إعدادات التحديث.";
+
+        return;
+
+    }
+
+    if (user.uid !== ADMIN_UID) {
+
+        currentAdmin = null;
+
+        try {
+            await auth.signOut();
+        } catch(ignore) {}
+
+        if (version !== authVersion) return;
+
+        $("loginCard").style.display = "block";
+        $("dashboard").style.display = "none";
+        $("logoutBtn").style.display = "none";
+
+        showStatus(
+            "هذا الحساب غير مخوّل لإدارة تحديثات BOK.",
+            false
+        );
 
         return;
 
@@ -687,8 +898,6 @@ auth.onAuthStateChanged(async function(user) {
 
     if (verifyAdmin(user)) {
         await loadSettings();
-    } else {
-        await auth.signOut();
     }
 
 });
